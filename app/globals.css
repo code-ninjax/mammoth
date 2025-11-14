@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 13, 13, 13;
+  --background-rgb: 255, 255, 255;
+  --accent-rgb: 0, 123, 255;
+}
+
+.dark {
+  --foreground-rgb: 255, 255, 255;
+  --background-rgb: 13, 13, 13;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+  font-family: var(--font-geist);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-digital);
+}
+
+@layer components {
+  .container {
+    @apply px-4 mx-auto sm:px-6 lg:px-8 max-w-7xl;
+  }
+  
+  .btn {
+    @apply px-6 py-2 rounded-md font-medium transition-all duration-200;
+  }
+  
+  .btn-primary {
+    @apply bg-accent text-white hover:bg-opacity-90;
+  }
+  
+  .btn-secondary {
+    @apply bg-transparent border border-accent text-accent hover:bg-accent hover:bg-opacity-10;
+  }
+  
+  .section {
+    @apply py-16 md:py-24;
+  }
+  
+  .card {
+    @apply p-6 rounded-lg bg-white dark:bg-primary border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200;
+  }
+}
