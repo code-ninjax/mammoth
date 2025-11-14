@@ -1,66 +1,94 @@
-# Mammoth - Decentralized Storage for BlockDAG
+# 🐘 Mammoth — Decentralized Storage for the BlockDAG Ecosystem
 
-Mammoth is a decentralized storage platform built specifically for the BlockDAG ecosystem. This repository contains the landing page and documentation for the Mammoth platform.
+Mammoth is a decentralized storage layer purpose-built for the **BlockDAG (BDAG) ecosystem**.  
+It enables users and developers to **store, manage, and share on-chain data** with speed, security, and transparency.
 
-## Features
+---
 
-- IPFS-Compatible Storage
-- Mammoth Storage Nodes
-- S3-Compatible API
-- Encryption & Access Control
-- Dashboard & Analytics
-- Predictable Pricing
+## 🚀 Overview
 
-## Tech Stack
+Centralized storage solutions are risky, expensive, and prone to censorship.  
+BlockDAG currently lacks a native storage infrastructure, leaving developers struggling to store metadata, images, and dApp files.  
 
-- Next.js (React framework)
-- Tailwind CSS (styling + responsiveness)
-- Framer Motion (for animations)
-- Lucide React (for icons)
-- Next Themes (for light/dark mode)
+**Mammoth solves this problem** by providing a **peer-to-peer, censorship-resistant, and permanent storage layer** optimized for BDAG applications.
 
-## Getting Started
+---
 
-### Prerequisites
+## ✨ Key Features (MVP)
 
-- Node.js 18.x or later
-- npm or yarn
+- **Upload & Pin Files** — Store files permanently on the decentralized network  
+- **Decentralized Storage Nodes** — Distributed architecture ensures resilience and scalability  
+- **Wallet-Based Authentication (BDAG Wallet)** — Secure access tied to BDAG identity  
+- **Developer API** — Simple integration for dApps and services  
+- **File Hashing + Metadata** — Immutable references for stored data  
+- **Public/Private File Access** — Flexible permissions for users and developers  
+- **Usage Dashboard** — Track storage usage and manage files easily  
 
-### Installation
+---
 
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/mammoth.git
-cd mammoth
-```
+## 🔧 How It Works
 
-2. Install dependencies:
-```bash
-npm install
-# or
-yarn install
-```
+1. Connect your **BDAG Wallet**  
+2. Upload files to Mammoth  
+3. Files are stored across decentralized nodes  
+4. Access or integrate files into BDAG dApps anytime  
 
-3. Run the development server:
-```bash
-npm run dev
-# or
-yarn dev
-```
+---
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser to see the result.
+## 📌 Use Cases
 
-## Project Structure
+- Store **NFT metadata** for BDAG NFT projects  
+- Backend file storage for **BDAG dApps**  
+- On-chain storage for **images, videos, and documents**  
+- Permanent archiving for creators and institutions  
+- Infrastructure for **future BlockDAG applications**  
 
-- `/app` - Next.js app directory with pages
-- `/components` - Reusable React components
-- `/public` - Static assets
-- `/styles` - Global styles
+---
 
-## License
+## 🗺️ Roadmap
 
-MIT
+### Phase 1 — MVP
+- File upload  
+- Storage nodes  
+- BDAG wallet authentication  
 
-## Contact
+### Phase 2 — Developer API
+- SDK for developers  
+- Advanced encryption  
 
-For questions or support, please contact us at support@mammoth.io
+### Phase 3 — Expansion
+- Node rewards system  
+- File versioning  
+- Larger integrations with BDAG ecosystem  
+
+---
+
+## 🌍 Mission
+
+> Mammoth is building the decentralized infrastructure BlockDAG needs to power the next generation of apps.  
+> **Fast. Permanent. Secure.**
+
+---
+
+## 📥 Join the Waitlist
+
+Be among the first to experience Mammoth.  
+- Sign up with your email  
+- (Optional) Connect your BDAG wallet  
+
+👉 **[Join the Waitlist](#)**
+
+---
+
+## 📫 Contact
+
+- Website: Coming soon  
+- Whitepaper: Coming soon  
+- Email: contact@mammoth.io  
+- Socials: Twitter | Discord | Telegram  
+
+---
+
+## ⚖️ License
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
