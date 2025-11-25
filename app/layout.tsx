@@ -11,6 +11,9 @@ const digital = Inter({ subsets: ['latin'], variable: '--font-digital' });
 export const metadata: Metadata = {
   title: 'Mammoth - Decentralized Storage for BlockDAG',
   description: 'Store, pin, and serve data with secure, decentralized infrastructure optimized for BDAG applications.',
+  icons: {
+    icon: '/logo-removebg-preview.png',
+  },
 };
 
 export default function RootLayout({

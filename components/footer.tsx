@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Github, Twitter, Linkedin, Mail } from "lucide-react";
 
 const footerLinks = [
@@ -55,7 +56,8 @@ export function Footer() {
       <div className="container py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="inline-block mb-6">
+            <Link href="/" className="inline-flex items-center mb-6">
+              <Image src="/logo-removebg-preview.png" alt="Mammoth logo" width={44} height={44} className="mr-2 rounded-sm" />
               <span className="text-2xl font-bold font-digital">Mammoth</span>
             </Link>
             <p className="text-gray-600 dark:text-gray-400 mb-6">

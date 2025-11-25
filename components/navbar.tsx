@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Menu, X } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
 
@@ -19,10 +20,10 @@ export function Navbar() {
   return (
     <nav className="sticky top-0 z-50 bg-white dark:bg-primary border-b border-gray-100 dark:border-gray-800 backdrop-blur-md bg-opacity-80 dark:bg-opacity-80">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-24">
           <div className="flex items-center">
-            <Link href="/" className="flex-shrink-0">
-              <span className="text-2xl font-bold font-digital">Mammoth</span>
+            <Link href="/" className="flex-shrink-0 flex items-center ml-6 md:ml-10">
+              <Image src="/logo-removebg-preview.png" alt="Mammoth logo" width={96} height={96} className="rounded-sm" />
             </Link>
           </div>
           
