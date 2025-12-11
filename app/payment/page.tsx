@@ -5,15 +5,15 @@ import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { motion } from "framer-motion";
 import { Wallet, ArrowRight, CheckCircle, Info, TrendingUp, Database } from "lucide-react";
+import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { useEffect } from "react";
 
 export default function PaymentPage() {
-  const [walletConnected, setWalletConnected] = useState(false);
+  const { address, isConnected } = useAccount();
+  const { connect, connectors, isPending, error } = useConnect();
+  const injectedConnector = connectors.find((c) => c.id === "injected") ?? connectors[0];
+  const { disconnect } = useDisconnect();
   const [selectedToken, setSelectedToken] = useState<"BDAG" | "USDT">("BDAG");
-
-  const handleConnectWallet = () => {
-    // Simulate wallet connection
-    setWalletConnected(true);
-  };
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-primary dark:to-gray-900">
@@ -117,7 +117,7 @@ export default function PaymentPage() {
                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-cyan-500/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
 
                 <div className="relative p-8">
-                  {!walletConnected ? (
+                  {!isConnected ? (
                     <>
                       <div className="text-center mb-8">
                         <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-purple-500/20 to-cyan-500/20 mb-4">
@@ -131,10 +131,23 @@ export default function PaymentPage() {
                       </div>
 
                       <button
-                        onClick={handleConnectWallet}
-                        className="w-full py-4 px-6 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-lg font-medium transition-all duration-200 flex items-center justify-center"
+                        onClick={() => {
+                          try {
+                            const hasWindow = typeof window !== "undefined";
+                            const hasProvider = hasWindow && !!(window as any).ethereum;
+                            if (!hasProvider) {
+                              window.open("https://metamask.io/download/", "_blank", "noopener,noreferrer");
+                              return;
+                            }
+                            connect({ connector: injectedConnector });
+                          } catch (e) {
+                            console.error("Connect call failed:", e);
+                          }
+                        }}
+                        disabled={isPending}
+                        className="w-full py-3 px-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
                       >
-                        Connect Wallet
+                        {isPending ? "Connecting..." : "Connect Wallet"}
                       </button>
 
                       <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
@@ -142,7 +155,7 @@ export default function PaymentPage() {
                           <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 mr-3 mt-0.5 flex-shrink-0" />
                           <div className="text-sm text-blue-900 dark:text-blue-200">
                             <p className="font-medium mb-1">Supported Wallets</p>
-                            <p>MetaMask, WalletConnect, Coinbase Wallet, and other Web3 wallets</p>
+                            <p>Injected wallets (e.g., MetaMask, Bybit) via browser extension</p>
                           </div>
                         </div>
                       </div>
@@ -156,10 +169,15 @@ export default function PaymentPage() {
                           </div>
                           <div>
                             <p className="text-sm text-gray-600 dark:text-gray-400">Connected Wallet</p>
-                            <p className="font-bold font-mono">0x742d...3f4a</p>
+                            <p className="font-bold font-mono">{address?.slice(0, 6)}...{address?.slice(-4)}</p>
                           </div>
                         </div>
-                        <button className="text-sm text-accent hover:underline">Disconnect</button>
+                        <button
+                          onClick={() => disconnect()}
+                          className="text-sm text-accent hover:underline"
+                        >
+                          Disconnect
+                        </button>
                       </div>
 
                       {/* Token Selection */}
@@ -258,7 +276,7 @@ export default function PaymentPage() {
               </motion.div>
 
               {/* Additional Info */}
-              {walletConnected && (
+              {isConnected && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}

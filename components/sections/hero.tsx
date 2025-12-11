@@ -1,8 +1,30 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 export function HeroSection() {
+  const [nodes, setNodes] = useState<Array<{
+    width: number;
+    height: number;
+    top: number;
+    left: number;
+    opacity: number;
+    scale: number;
+  }>>([]);
+
+  useEffect(() => {
+    // Generate decorative nodes on client to avoid SSR/CSR mismatch
+    const generated = Array.from({ length: 20 }).map(() => ({
+      width: Math.random() * 300 + 50,
+      height: Math.random() * 300 + 50,
+      top: Math.random() * 100,
+      left: Math.random() * 100,
+      opacity: Math.random() * 0.5,
+      scale: Math.random() * 0.5 + 0.5,
+    }));
+    setNodes(generated);
+  }, []);
   return (
     <section className="relative py-20 md:py-32 overflow-hidden bg-gradient-to-b from-white to-gray-50 dark:from-primary dark:to-gray-900">
       <div className="absolute inset-0 z-0 opacity-30">
@@ -41,19 +63,19 @@ export function HeroSection() {
         </div>
       </div>
       
-      {/* Abstract nodes background */}
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        {Array.from({ length: 20 }).map((_, i) => (
-          <div 
+      {/* Abstract nodes background (client-only) */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none" suppressHydrationWarning>
+        {nodes.map((node, i) => (
+          <div
             key={i}
             className="absolute rounded-full bg-accent/10 dark:bg-accent/20"
             style={{
-              width: `${Math.random() * 300 + 50}px`,
-              height: `${Math.random() * 300 + 50}px`,
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              opacity: Math.random() * 0.5,
-              transform: `scale(${Math.random() * 0.5 + 0.5})`,
+              width: `${node.width}px`,
+              height: `${node.height}px`,
+              top: `${node.top}%`,
+              left: `${node.left}%`,
+              opacity: node.opacity,
+              transform: `scale(${node.scale})`,
             }}
           />
         ))}

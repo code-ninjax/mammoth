@@ -5,6 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { Menu, X } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
+import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { useEffect } from "react";
 
 const navLinks = [
   { name: "Products", href: "#products" },
@@ -16,6 +18,17 @@ const navLinks = [
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const { address, isConnected } = useAccount();
+  const { connect, connectors, isPending, error } = useConnect();
+  const injectedConnector = connectors.find((c) => c.id === "injected") ?? connectors[0];
+  const { disconnect } = useDisconnect();
+
+  useEffect(() => {
+    if (error) {
+      // Surface connector errors for debugging
+      console.error("Wallet connect error:", error);
+    }
+  }, [error]);
 
   return (
     <nav className="sticky top-0 z-50 bg-white dark:bg-primary border-b border-gray-100 dark:border-gray-800 backdrop-blur-md bg-opacity-80 dark:bg-opacity-80">
@@ -43,13 +56,42 @@ export function Navbar() {
           </div>
           
           <div className="hidden md:flex items-center space-x-4">
-            <Link
-              href="/login"
-              className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-accent dark:hover:text-accent"
-            >
-              Login / Dashboard
-            </Link>
-            <button className="btn btn-primary">Connect Wallet</button>
+            {isConnected && (
+              <Link
+                href="/login"
+                className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-accent dark:hover:text-accent"
+              >
+                Dashboard
+              </Link>
+            )}
+            {isConnected ? (
+              <button
+                onClick={() => disconnect()}
+                className="px-3 py-2 rounded-md border border-gray-300 hover:bg-gray-100 text-sm"
+              >
+                Disconnect {address?.slice(0, 6)}...{address?.slice(-4)}
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  try {
+                    const hasWindow = typeof window !== "undefined";
+                    const hasProvider = hasWindow && !!(window as any).ethereum;
+                    if (!hasProvider) {
+                      window.open("https://metamask.io/download/", "_blank", "noopener,noreferrer");
+                      return;
+                    }
+                    connect({ connector: injectedConnector });
+                  } catch (e) {
+                    console.error("Connect call failed:", e);
+                  }
+                }}
+                disabled={isPending}
+                className="btn btn-primary"
+              >
+                {isPending ? "Connecting..." : "Connect Wallet"}
+              </button>
+            )}
             <ThemeToggle />
           </div>
           
@@ -86,15 +128,49 @@ export function Navbar() {
                 {link.name}
               </Link>
             ))}
-            <Link
-              href="/login"
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-accent dark:hover:text-accent"
-              onClick={() => setIsOpen(false)}
-            >
-              Login / Dashboard
-            </Link>
+            {isConnected && (
+              <Link
+                href="/login"
+                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-accent dark:hover:text-accent"
+                onClick={() => setIsOpen(false)}
+              >
+                Dashboard
+              </Link>
+            )}
             <div className="px-3 py-2">
-              <button className="w-full btn btn-primary">Connect Wallet</button>
+              {isConnected ? (
+                <button
+                  onClick={() => {
+                    disconnect();
+                    setIsOpen(false);
+                  }}
+                  className="w-full px-3 py-2 rounded-md border border-gray-300 hover:bg-gray-100"
+                >
+                  Disconnect {address?.slice(0, 6)}...{address?.slice(-4)}
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    try {
+                      const hasWindow = typeof window !== "undefined";
+                      const hasProvider = hasWindow && !!(window as any).ethereum;
+                      if (!hasProvider) {
+                        window.open("https://metamask.io/download/", "_blank", "noopener,noreferrer");
+                        setIsOpen(false);
+                        return;
+                      }
+                      connect({ connector: injectedConnector });
+                    } catch (e) {
+                      console.error("Connect call failed:", e);
+                    }
+                    setIsOpen(false);
+                  }}
+                  disabled={isPending}
+                  className="w-full px-3 py-2 rounded-md border border-gray-300 hover:bg-gray-100"
+                >
+                  {isPending ? "Connecting..." : "Connect Wallet"}
+                </button>
+              )}
             </div>
           </div>
         </div>
