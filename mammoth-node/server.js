@@ -1,8 +1,22 @@
 import express from "express";
+import cors from "cors";
 import fs from "fs";
 import path from "path";
 
 const app = express();
+// Allow any localhost origin and handle CORS preflight properly
+app.use(
+  cors({
+    origin: (origin, cb) => {
+      // Allow localhost dev ports (3000/3001/3002/3003, etc.)
+      if (!origin || /http:\/\/localhost:\d{4}/.test(origin)) return cb(null, true);
+      return cb(null, false);
+    },
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type"],
+  })
+);
+app.options("*", cors());
 app.use(express.json({ limit: "50mb" }));
 
 const STORAGE_DIR = path.resolve("./mammoth-node/storage");

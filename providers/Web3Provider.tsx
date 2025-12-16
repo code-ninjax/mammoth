@@ -1,17 +1,31 @@
 "use client";
 
 import { createConfig, WagmiProvider } from "wagmi";
-import { polygonAmoy } from "wagmi/chains";
 import { http } from "viem";
+import type { Chain } from "viem/chains";
 import { injected } from "@wagmi/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // Reverted to injected-only connector for simpler behavior
 
+const BDAG: Chain = {
+  id: 1043,
+  name: "BlockDAG Awakening",
+  nativeCurrency: { name: "BDAG", symbol: "BDAG", decimals: 18 },
+  rpcUrls: {
+    default: { http: ["https://rpc.awakening.bdagscan.com"] },
+    public: { http: ["https://rpc.awakening.bdagscan.com"] },
+  },
+  blockExplorers: {
+    default: { name: "BDAG Scan", url: "https://awakening.bdagscan.com" },
+  },
+  testnet: true,
+};
+
 const config = createConfig({
-  chains: [polygonAmoy],
+  chains: [BDAG],
   transports: {
-    [polygonAmoy.id]: http("https://rpc-amoy.polygon.technology"),
+    [BDAG.id]: http("https://rpc.awakening.bdagscan.com"),
   },
   connectors: [injected()],
 });

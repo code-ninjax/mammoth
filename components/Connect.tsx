@@ -19,7 +19,7 @@ export default function Connect() {
         </button>
       ) : (
         <button
-          onClick={() => connect({ connector: injected() })}
+          onClick={() => connect({ connector: injected(), chainId: 1043 })}
           disabled={isPending}
           className="px-3 py-2 rounded-md border border-gray-300 hover:bg-gray-100"
         >

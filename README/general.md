@@ -24,6 +24,12 @@ This guide walks through testing the full workflow across smart contracts, the S
   - `BDAG_RPC_URL=https://rpc.awakening.bdagscan.com`
   - `PRIVATE_KEY=0xYOUR_PRIVATE_KEY`
 
+### Wallet Network (Frontend)
+- The app is configured to connect wallets to BlockDAG Awakening Testnet (`chainId 1043`).
+- RPC: `https://rpc.awakening.bdagscan.com`
+- Explorer: `https://awakening.bdagscan.com`
+- Native currency symbol: `BDAG`
+
 ## Step 1 — Start a Storage Node
 - `npm run node:start`
 - Verifies:
@@ -98,3 +104,33 @@ console.log("CID:", cid);
 - If SDK skips sending TXs, set `PRIVATE_KEY` and `CONTRACT_ADDRESS`
 - If network errors occur, confirm `BDAG_RPC_URL` and that your key has funds
 - If events aren’t visible, verify explorer network and the correct contract address
+
+## Wallet-Driven E2E (Frontend)
+
+This flow uses the browser wallet (via Wagmi) to sign real transactions on a testnet, and logs each step.
+
+1) Pre-checks
+- Ensure your wallet is connected to BlockDAG Awakening Testnet (`chainId 1043`).
+- Deploy `MammothStorage` to that testnet and copy the deployed address.
+- Start the node: `npm run node:start`.
+
+2) Run the demo UI
+- `npm run dev` (root) and open `http://localhost:3000/demo`.
+- Click “Connect Wallet”.
+
+3) Fill in the form and run
+- Enter your deployed `contractAddress` and node URL (e.g., `http://localhost:8080`).
+- Choose a small test file, set `Payment (ETH)` to a small nonzero value.
+- Click “Run Wallet E2E”.
+
+4) What happens
+- The app computes a CID in the browser (256KB chunking + SHA-256) and logs it.
+- Uploads the base64 of the file to the node via `POST /storeBlob`.
+- Calls `storeFile(cid, [nodeUrl], { value })` from your connected wallet, logs the transaction hash.
+
+Notes
+- The frontend demo uses a simplified CID hashing compatible across browsers; for absolute parity with the Node SDK, you can adapt the SDK hashing utilities for the browser or expose a backend endpoint to compute the CID.
+- The wallet provider is now set to BDAG Awakening Testnet; ensure your deployed contract address corresponds to this network.
+
+
+https://awakening.bdagscan.com/tx/0x010c3f13ab8df4f76e550d863600ad5645a0dedc29a2fc3eb6c659f81784a342
