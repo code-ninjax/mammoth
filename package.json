@@ -2,11 +2,24 @@
   "name": "mammoth",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "smart-contracts",
+    "mammoth-sdk",
+    "mammoth-node"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "contracts:compile": "npm run -w smart-contracts compile",
+    "contracts:test": "npm run -w smart-contracts test",
+    "contracts:demo": "npm run -w smart-contracts demo:local",
+    "contracts:deploy:bdag": "npm run -w smart-contracts deploy:bdag",
+    "sdk:build": "npm run -w mammoth-sdk build",
+    "sdk:test": "npm run -w mammoth-sdk test",
+    "node:start": "npm run -w mammoth-node start",
+    "node:clean": "npm run -w mammoth-node clean"
   },
   "dependencies": {
     "@coinbase/wallet-sdk": "^4.3.7",

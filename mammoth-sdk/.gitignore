@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Coverage and cache
+coverage/
+*.tsbuildinfo
+
+# Env and OS junk
+.env
+.DS_Store
+
+# Package artifacts (if publishing locally)
+*.tgz

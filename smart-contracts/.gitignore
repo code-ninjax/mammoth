@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Hardhat build output
+artifacts/
+cache/
+
+# Generated types (remove this line if you want them tracked)
+typechain-types/
+
+# Coverage and reports
+coverage/
+reports/
+
+# Env and OS junk
+.env
+.DS_Store
+
+# TS build info
+*.tsbuildinfo

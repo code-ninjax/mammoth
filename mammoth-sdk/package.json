@@ -1,0 +1,21 @@
+{
+  "name": "mammoth-sdk",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p .",
+    "clean": "rimraf dist",
+    "test": "node ./scripts/demo.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "ethers": "^6.12.2"
+  },
+  "devDependencies": {
+    "rimraf": "^5.0.5",
+    "typescript": "^5.6.3"
+  }
+}
