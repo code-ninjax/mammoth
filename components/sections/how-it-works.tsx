@@ -13,20 +13,20 @@ const steps = [
   {
     icon: <Upload className="h-10 w-10 text-accent" />,
     number: "2️⃣",
-    title: "Upload Files or Use API",
-    description: "Upload files through our dashboard or integrate with our API for automated storage."
+    title: "Chunk & Pay (Pay-to-Store)",
+    description: "The SDK chunks your file, hashes it, and you sign a BLOCKDAG transaction to authorize storage."
   },
   {
     icon: <Database className="h-10 w-10 text-accent" />,
     number: "3️⃣",
-    title: "Files stored across Mammoth nodes",
-    description: "Your data is distributed across our secure network of Mammoth storage nodes."
+    title: "Stored on Mammoth Nodes",
+    description: "Verified chunks are stored across decentralized Mammoth nodes, gated by your payment."
   },
   {
     icon: <Download className="h-10 w-10 text-accent" />,
     number: "4️⃣",
-    title: "Retrieve anytime via IPFS/S3 URL",
-    description: "Access your files anytime through IPFS gateways or S3-compatible endpoints."
+    title: "Retrieve via SDK",
+    description: "Retrieve files trustlessly using the SDK, which verifies data integrity against the blockchain."
   }
 ];
 

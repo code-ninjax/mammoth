@@ -1,69 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useAccount, useWriteContract } from "wagmi";
-import { parseEther } from "viem";
-
-// Minimal ABI for storeFile(bytes32 cid, address[] nodes) payable
-const MammothStorageAbi = [
-  {
-    type: "function",
-    name: "storeFile",
-    stateMutability: "payable",
-    inputs: [
-      { name: "cid", type: "bytes32" },
-      { name: "nodes", type: "address[]" },
-    ],
-    outputs: [],
-  },
- ] as const;
-
-// Web crypto helpers
-function toArrayBuffer(view: Uint8Array): ArrayBuffer {
-  const buf = new ArrayBuffer(view.byteLength);
-  const copy = new Uint8Array(buf);
-  copy.set(view);
-  return buf;
-}
-
-async function sha256Hex(buffer: ArrayBuffer): Promise<string> {
-  const digest = await crypto.subtle.digest("SHA-256", buffer);
-  return Array.from(new Uint8Array(digest))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-}
-
-function hexToUtf8Bytes(hex: string): Uint8Array {
-  // Treat hex string as a plain UTF-8 string input to hash for simplicity
-  return new TextEncoder().encode(hex);
-}
-
-async function computeCid(file: File): Promise<{ cid: string; base64: string }> {
-  const arrayBuffer = await file.arrayBuffer();
-  const chunkSize = 256 * 1024; // 256KB
-  const bytes = new Uint8Array(arrayBuffer);
-  const chunkHashes: string[] = [];
-  for (let offset = 0; offset < bytes.length; offset += chunkSize) {
-    const chunk = bytes.slice(offset, Math.min(offset + chunkSize, bytes.length));
-    const chunkHash = await sha256Hex(toArrayBuffer(chunk));
-    chunkHashes.push(chunkHash);
-  }
-  // Simplified CID: sha256 over concatenated hex string of chunk hashes
-  const concatenated = chunkHashes.join("");
-  const cid = await sha256Hex(toArrayBuffer(hexToUtf8Bytes(concatenated)));
-
-  // Base64 encode entire file for node storage
-  let binary = "";
-  for (let i = 0; i < bytes.length; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  const base64 = btoa(binary);
-  return { cid, base64 };
-}
+import { useAccount } from "wagmi";
+import { Mammoth } from "mammoth-sdk";
 
 export default function WalletStoreDemo() {
-  const { isConnected, address } = useAccount();
-  const { writeContractAsync, status } = useWriteContract();
+  const { isConnected } = useAccount();
 
   const [file, setFile] = useState<File | null>(null);
   const [nodeUrl, setNodeUrl] = useState<string>("http://localhost:8080");
@@ -71,8 +13,8 @@ export default function WalletStoreDemo() {
     process.env.NEXT_PUBLIC_MAMMOTH_STORAGE_ADDRESS || ""
   );
   const [paymentEth, setPaymentEth] = useState<string>("0.001");
-  const [nodeAddress, setNodeAddress] = useState<string>("");
   const [logs, setLogs] = useState<string[]>([]);
+  const [retrievalUrl, setRetrievalUrl] = useState<string>("");
 
   function log(msg: string) {
     console.log(msg);
@@ -94,104 +36,116 @@ export default function WalletStoreDemo() {
     }
 
     try {
-      log("Computing CID from chunks (256KB, SHA-256)...");
-      const { cid, base64 } = await computeCid(file);
-      log(`CID computed: ${cid}`);
-
-      log(`Uploading blob to node: ${nodeUrl}/storeBlob ...`);
-      const res = await fetch(`${nodeUrl}/storeBlob`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ hash: cid, data: base64 }),
+      log("Initializing Mammoth SDK...");
+      Mammoth.init({
+        rpcUrl: "https://rpc.awakening.bdagscan.com",
+        contractAddress: contractAddress,
+        nodes: [nodeUrl],
       });
-      const j = await res.json().catch(() => ({}));
-      log(`Node response: ${res.status} ${JSON.stringify(j)}`);
 
-      if (!nodeAddress) {
-        log("Enter a node EVM address to receive payment.");
-        return;
-      }
+      log("Starting Upload Flow (Chunking -> Payment -> Storage)...");
+      log("Please confirm the transaction in your wallet.");
 
-      log("Sending storeFile transaction from connected wallet...");
-      const txHash = await writeContractAsync({
-        address: contractAddress as `0x${string}`,
-        abi: MammothStorageAbi,
-        functionName: "storeFile",
-        args: [`0x${cid}`, [nodeAddress as `0x${string}`]],
-        value: parseEther(paymentEth),
+      const result = await Mammoth.store({
+        file: file,
+        payment: paymentEth,
       });
-      log(`Tx sent: ${txHash}`);
-    } catch (err: any) {
-      log(`Error: ${err?.message || String(err)}`);
+
+      log("Upload Successful!");
+      log(`File ID (Root Hash): ${result.fileId}`);
+      log(`Transaction Hash: ${result.txHash}`);
+      log(`Retrieval Endpoint: ${result.retrievalEndpoint}`);
+      
+      setRetrievalUrl(result.retrievalEndpoint);
+
+    } catch (error: any) {
+      console.error(error);
+      log(`Error: ${error.message || error}`);
     }
   }
 
   return (
-    <div className="max-w-xl mx-auto p-4 border rounded-md space-y-3">
-      <h2 className="text-lg font-semibold">Wallet-Driven Store Demo</h2>
-      <p className="text-sm text-gray-600">
-        Connect your wallet, choose a file, upload it to the node, then call
-        <code className="ml-1">storeFile</code> on-chain.
-      </p>
-
-      <div className="space-y-2">
-        <label className="block text-sm">Deployed Contract Address</label>
-        <input
-          className="w-full border rounded p-2"
-          placeholder="0x..."
-          value={contractAddress}
-          onChange={(e) => setContractAddress(e.target.value)}
-        />
+    <div className="space-y-6">
+      <div className="card">
+        <h2 className="text-xl font-bold mb-4">1. Configuration</h2>
+        <div className="grid gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Storage Node URL</label>
+            <input
+              type="text"
+              value={nodeUrl}
+              onChange={(e) => setNodeUrl(e.target.value)}
+              className="w-full p-2 rounded bg-gray-800 border border-gray-700"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Contract Address</label>
+            <input
+              type="text"
+              value={contractAddress}
+              onChange={(e) => setContractAddress(e.target.value)}
+              className="w-full p-2 rounded bg-gray-800 border border-gray-700"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Payment (ETH/BDAG)</label>
+            <input
+              type="text"
+              value={paymentEth}
+              onChange={(e) => setPaymentEth(e.target.value)}
+              className="w-full p-2 rounded bg-gray-800 border border-gray-700"
+            />
+          </div>
+        </div>
       </div>
 
-      <div className="space-y-2">
-        <label className="block text-sm">Storage Node URL</label>
-        <input
-          className="w-full border rounded p-2"
-          placeholder="http://localhost:8080"
-          value={nodeUrl}
-          onChange={(e) => setNodeUrl(e.target.value)}
-        />
+      <div className="card">
+        <h2 className="text-xl font-bold mb-4">2. Upload File</h2>
+        <div className="space-y-4">
+          <input
+            type="file"
+            onChange={(e) => setFile(e.target.files?.[0] || null)}
+            className="block w-full text-sm text-gray-400
+              file:mr-4 file:py-2 file:px-4
+              file:rounded-full file:border-0
+              file:text-sm file:font-semibold
+              file:bg-accent file:text-white
+              hover:file:bg-accent/90"
+          />
+          
+          <button
+            onClick={runFlow}
+            disabled={!file || !isConnected}
+            className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isConnected ? "Upload & Pay" : "Connect Wallet First"}
+          </button>
+        </div>
       </div>
+      
+      {retrievalUrl && (
+        <div className="card">
+          <h2 className="text-xl font-bold mb-4">3. Verification</h2>
+          <a
+            href={retrievalUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="btn-secondary w-full block text-center"
+          >
+            Retrieve & Verify Integrity
+          </a>
+        </div>
+      )}
 
-      <div className="space-y-2">
-        <label className="block text-sm">Node EVM Address (receives payment)</label>
-        <input
-          className="w-full border rounded p-2"
-          placeholder={address || "0x..."}
-          value={nodeAddress}
-          onChange={(e) => setNodeAddress(e.target.value)}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label className="block text-sm">Payment (BDAG)</label>
-        <input
-          className="w-full border rounded p-2"
-          placeholder="0.001"
-          value={paymentEth}
-          onChange={(e) => setPaymentEth(e.target.value)}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label className="block text-sm">Select File</label>
-        <input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} />
-      </div>
-
-      <button
-        onClick={runFlow}
-        disabled={!isConnected || status === "pending"}
-        className="px-3 py-2 rounded-md border border-gray-300 hover:bg-gray-100"
-      >
-        {status === "pending" ? "Sending..." : "Run Wallet E2E"}
-      </button>
-
-      <div className="pt-3">
-        <h3 className="text-sm font-semibold">Logs</h3>
-        <pre className="text-xs bg-gray-50 p-2 rounded max-h-48 overflow-auto">
-          {logs.join("\n")}
-        </pre>
+      <div className="card bg-black font-mono text-sm h-64 overflow-y-auto p-4 border border-gray-800">
+        <h3 className="text-gray-500 mb-2 uppercase text-xs">Activity Log</h3>
+        {logs.map((msg, i) => (
+          <div key={i} className="mb-1">
+            <span className="text-accent mr-2">{">"}</span>
+            {msg}
+          </div>
+        ))}
+        {logs.length === 0 && <span className="text-gray-600">Waiting for action...</span>}
       </div>
     </div>
   );

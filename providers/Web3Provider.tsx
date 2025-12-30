@@ -3,10 +3,8 @@
 import { createConfig, WagmiProvider } from "wagmi";
 import { http } from "viem";
 import type { Chain } from "viem/chains";
-import { injected } from "@wagmi/core";
+import { metaMask, injected } from "@wagmi/connectors";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-// Reverted to injected-only connector for simpler behavior
 
 const BDAG: Chain = {
   id: 1043,
@@ -22,12 +20,14 @@ const BDAG: Chain = {
   testnet: true,
 };
 
+const connectors = typeof window === "undefined" ? [] : [metaMask(), injected()];
+
 const config = createConfig({
   chains: [BDAG],
   transports: {
     [BDAG.id]: http("https://rpc.awakening.bdagscan.com"),
   },
-  connectors: [injected()],
+  connectors,
 });
 
 export default function Web3Provider({ children }: { children: React.ReactNode }) {

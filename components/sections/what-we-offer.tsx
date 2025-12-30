@@ -6,8 +6,8 @@ import { Database, HardDrive, Lock, BarChart3, DollarSign, Network } from "lucid
 const features = [
   {
     icon: <Database className="h-8 w-8 text-accent" />,
-    title: "IPFS-Compatible Storage",
-    description: "Keep your data decentralized and permanent. Upload, pin, and retrieve files using Mammoth's IPFS-compatible layer."
+    title: "Decentralized File Storage",
+    description: "Keep your data decentralized and permanent. Upload, pin, and retrieve files using Mammoth's node network."
   },
   {
     icon: <HardDrive className="h-8 w-8 text-accent" />,
@@ -16,8 +16,8 @@ const features = [
   },
   {
     icon: <Network className="h-8 w-8 text-accent" />,
-    title: "S3-Compatible API",
-    description: "Integrate storage into any app using S3-compatible endpoints."
+    title: "Mammoth SDK",
+    description: "Integrate storage into any app using our developer-friendly SDK."
   },
   {
     icon: <Lock className="h-8 w-8 text-accent" />,
@@ -26,8 +26,8 @@ const features = [
   },
   {
     icon: <BarChart3 className="h-8 w-8 text-accent" />,
-    title: "Dashboard & Analytics",
-    description: "View storage usage, file hashes, API keys, and network stats in real time."
+    title: "On-Chain Analytics",
+    description: "Verify storage proofs, track network usage, and audit files directly on the blockchain."
   },
   {
     icon: <DollarSign className="h-8 w-8 text-accent" />,

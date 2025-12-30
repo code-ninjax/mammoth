@@ -1,0 +1,52 @@
+### How to Publish the SDK
+To make the SDK available to developers via npm install mammoth-sdk :
+
+1. Build the SDK :
+   ```
+   npm run sdk:build
+   ```
+2. Publish to NPM :
+   ```
+   cd mammoth-sdk
+   npm login  # Log in to your npm 
+   account
+   npm publish --access public
+   ```
+### How to Test the Flow
+1. Start the Node :
+   ```
+   npm run node:start
+   ```
+2. Run the Demo :
+   ```
+   npm run dev
+   ```
+3. Navigate to /demo :
+   - Connect your wallet.
+   - Select a file.
+   - Click "Upload & Pay" .
+   - Watch the logs: The SDK will chunk the file, ask for a signature, send the TX, wait for confirmation, and then upload to the node.
+   - Click "Retrieve" to verify the file integrity on-chain.
+### New SDK Usage Example
+```
+import { Mammoth } from 
+"mammoth-sdk";
+
+// 1. Initialize
+Mammoth.init({
+  rpcUrl: "https://rpc.ankr.com/
+  eth_sepolia", 
+  contractAddress: 
+  "0xYourContractAddress",
+  nodes: ["http://localhost:8080"]
+});
+
+// 2. Pay & Store
+const result = await Mammoth.store({
+  file: myFile,
+  payment: "0.01"
+});
+
+console.log("File ID:", result.
+fileId);
+```

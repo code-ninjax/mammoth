@@ -48,7 +48,7 @@ export function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            Store, pin, and serve data with secure, decentralized infrastructure optimized for BDAG applications.
+            Store, verify, and retrieve data with secure, decentralized nodes optimized for BlockDAG applications.
           </motion.p>
           
           <motion.div 

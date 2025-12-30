@@ -14,32 +14,19 @@ describe("MammothStorage", function () {
     await contract.registerNode(await node2.getAddress());
     await contract.registerNode(await node3.getAddress());
 
-    const nodes = [await node1.getAddress(), await node2.getAddress(), await node3.getAddress()];
-    const cid = ethers.keccak256(ethers.toUtf8Bytes("demo-cid"));
+    const rootHash = ethers.keccak256(ethers.toUtf8Bytes("demo-root-hash"));
+    const metadataHash = ethers.keccak256(ethers.toUtf8Bytes("demo-metadata"));
 
     const paid = ethers.parseEther("9"); // 9 ETH for clean division
-    await expect(contract.connect(owner).storeFile(cid, nodes, { value: paid }))
+    await expect(contract.connect(owner).storeFile(rootHash, metadataHash, { value: paid }))
       .to.emit(contract, "FileStored")
-      .withArgs(cid, await owner.getAddress(), paid);
+      .withArgs(rootHash, metadataHash, await owner.getAddress(), paid);
 
-    const share = paid / BigInt(nodes.length);
-    const b1Before = await ethers.provider.getBalance(await node1.getAddress());
-    const b2Before = await ethers.provider.getBalance(await node2.getAddress());
-    const b3Before = await ethers.provider.getBalance(await node3.getAddress());
-
-    await expect(contract.releasePayment(cid))
+    await expect(contract.releasePayment(rootHash))
       .to.emit(contract, "PaymentReleased")
-      .withArgs(cid);
+      .withArgs(rootHash);
 
-    const b1After = await ethers.provider.getBalance(await node1.getAddress());
-    const b2After = await ethers.provider.getBalance(await node2.getAddress());
-    const b3After = await ethers.provider.getBalance(await node3.getAddress());
-
-    expect(b1After - b1Before).to.equal(share);
-    expect(b2After - b2Before).to.equal(share);
-    expect(b3After - b3Before).to.equal(share);
-
-    await expect(contract.releasePayment(cid)).to.be.revertedWith("Already released");
+    await expect(contract.releasePayment(rootHash)).to.be.revertedWith("Already released");
   });
 
   it("prevents duplicate CIDs and zero-payment", async function () {
@@ -48,14 +35,14 @@ describe("MammothStorage", function () {
     const contract = await MammothStorage.deploy();
     await contract.waitForDeployment();
 
-    const cid = ethers.keccak256(ethers.toUtf8Bytes("cid-1"));
-    const nodes = [await node.getAddress()];
+    const rootHash = ethers.keccak256(ethers.toUtf8Bytes("cid-1"));
+    const metadataHash = ethers.keccak256(ethers.toUtf8Bytes("cid-1-meta"));
 
-    await expect(contract.storeFile(cid, nodes, { value: 0 }))
+    await expect(contract.storeFile(rootHash, metadataHash, { value: 0 }))
       .to.be.revertedWith("No payment");
 
-    await contract.storeFile(cid, nodes, { value: ethers.parseEther("1") });
-    await expect(contract.storeFile(cid, nodes, { value: ethers.parseEther("1") }))
+    await contract.storeFile(rootHash, metadataHash, { value: ethers.parseEther("1") });
+    await expect(contract.storeFile(rootHash, metadataHash, { value: ethers.parseEther("1") }))
       .to.be.revertedWith("Already exists");
   });
 });

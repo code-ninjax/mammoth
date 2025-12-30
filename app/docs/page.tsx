@@ -1,5 +1,34 @@
+"use client";
+
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
+import { useState } from "react";
+import { Check, Copy } from "lucide-react";
+
+function CodeBlock({ code }: { code: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const copy = () => {
+    navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="relative group">
+      <button
+        onClick={copy}
+        className="absolute right-2 top-2 p-2 rounded-md bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 transition-colors opacity-0 group-hover:opacity-100"
+        title="Copy code"
+      >
+        {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+      </button>
+      <pre className="bg-gray-900 text-gray-300 p-4 rounded-md overflow-x-auto">
+        <code>{code}</code>
+      </pre>
+    </div>
+  );
+}
 
 export default function DocsPage() {
   return (
@@ -8,123 +37,90 @@ export default function DocsPage() {
       
       <div className="container py-16">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold mb-6 font-digital">Mammoth Documentation</h1>
+          <h1 className="text-4xl font-bold mb-6 font-digital">Mammoth SDK Documentation</h1>
           <p className="text-xl mb-8 text-gray-700 dark:text-gray-300">
-            Learn how to use Mammoth for decentralized storage in the BlockDAG ecosystem.
+            Integrate decentralized storage with BLOCKDAG payments directly into your application.
           </p>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-            <div className="card">
-              <h2 className="text-2xl font-bold mb-4">Getting Started</h2>
+          <div className="mb-12 space-y-8">
+            <section className="card">
+              <h2 className="text-2xl font-bold mb-4">Installation</h2>
+              <CodeBlock code="npm install mammoth-sdk" />
+            </section>
+
+            <section className="card">
+              <h2 className="text-2xl font-bold mb-4">Initialization</h2>
               <p className="mb-4 text-gray-700 dark:text-gray-300">
-                Learn the basics of Mammoth and how to set up your first project.
+                Initialize the SDK with your blockchain provider and storage node configuration.
               </p>
-              <ul className="space-y-2">
-                <li className="flex items-center">
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent mr-2"></span>
-                  <a href="#" className="text-accent hover:underline">Introduction to Mammoth</a>
-                </li>
-                <li className="flex items-center">
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent mr-2"></span>
-                  <a href="#" className="text-accent hover:underline">Creating an Account</a>
-                </li>
-                <li className="flex items-center">
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent mr-2"></span>
-                  <a href="#" className="text-accent hover:underline">Uploading Your First File</a>
-                </li>
-              </ul>
-            </div>
-            
-            <div className="card">
-              <h2 className="text-2xl font-bold mb-4">API Reference</h2>
+              <CodeBlock code={`import { Mammoth } from "mammoth-sdk";
+
+// Initialize with configuration
+Mammoth.init({
+  rpcUrl: "https://rpc.awakening.bdagscan.com", // BLOCKDAG Testnet RPC
+  contractAddress: "0xYourContractAddress",
+  nodes: ["http://localhost:8080"] // Mammoth Storage Node URL
+});`} />
+            </section>
+
+            <section className="card">
+              <h2 className="text-2xl font-bold mb-4">Upload File (Pay-to-Store)</h2>
               <p className="mb-4 text-gray-700 dark:text-gray-300">
-                Comprehensive documentation for the Mammoth API.
+                Uploads are gated by BLOCKDAG payments. The SDK handles chunking, hashing, transaction creation, and upload orchestration.
               </p>
-              <ul className="space-y-2">
-                <li className="flex items-center">
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent mr-2"></span>
-                  <a href="#" className="text-accent hover:underline">Authentication</a>
-                </li>
-                <li className="flex items-center">
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent mr-2"></span>
-                  <a href="#" className="text-accent hover:underline">File Operations</a>
-                </li>
-                <li className="flex items-center">
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent mr-2"></span>
-                  <a href="#" className="text-accent hover:underline">IPFS Pinning</a>
-                </li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="card mb-12">
-            <h2 className="text-2xl font-bold mb-4">Code Examples</h2>
-            <p className="mb-6 text-gray-700 dark:text-gray-300">
-              Learn how to integrate Mammoth into your applications with these code examples.
-            </p>
-            
-            <div className="mb-6">
-              <h3 className="text-lg font-bold mb-2">JavaScript</h3>
-              <pre className="bg-gray-900 text-gray-300 p-4 rounded-md overflow-x-auto">
-                <code>{`// Install the Mammoth SDK
-// npm install @mammoth/sdk
+              <CodeBlock code={`// 1. Get file from user input
+const fileInput = document.getElementById("fileInput");
+const file = fileInput.files[0];
 
-import { MammothClient } from '@mammoth/sdk';
-
-// Initialize the client
-const mammoth = new MammothClient({
-  apiKey: 'YOUR_API_KEY',
-});
-
-// Upload a file
-async function uploadFile() {
-  const result = await mammoth.upload({
-    file: myFile,
-    pinToIPFS: true,
+// 2. Store file (Prompt wallet for payment)
+try {
+  const result = await Mammoth.store({
+    file: file,
+    payment: "0.01" // Amount in BLOCKDAG native currency
   });
-  
-  console.log(\`File uploaded! CID: \${result.cid}\`);
-  console.log(\`IPFS URL: ipfs://\${result.cid}\`);
-  console.log(\`Gateway URL: \${result.url}\`);
-}`}</code>
-              </pre>
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-bold mb-2">Python</h3>
-              <pre className="bg-gray-900 text-gray-300 p-4 rounded-md overflow-x-auto">
-                <code>{`# Install the Mammoth SDK
-# pip install mammoth-sdk
 
-from mammoth import MammothClient
+  console.log("Upload Successful!");
+  console.log("File ID (Root Hash):", result.fileId);
+  console.log("Transaction Hash:", result.txHash);
+  console.log("Retrieval URL:", result.retrievalEndpoint);
 
-# Initialize the client
-mammoth = MammothClient(api_key='YOUR_API_KEY')
+} catch (error) {
+  console.error("Upload failed:", error);
+}`} />
+            </section>
 
-# Upload a file
-def upload_file(file_path):
-    result = mammoth.upload(
-        file_path=file_path,
-        pin_to_ipfs=True
-    )
-    
-    print(f"File uploaded! CID: {result.cid}")
-    print(f"IPFS URL: ipfs://{result.cid}")
-    print(f"Gateway URL: {result.url}")`}</code>
-              </pre>
-            </div>
+            <section className="card">
+              <h2 className="text-2xl font-bold mb-4">Retrieve File</h2>
+              <p className="mb-4 text-gray-700 dark:text-gray-300">
+                Retrieve and verify file integrity against the on-chain root hash.
+              </p>
+              <CodeBlock code={`const fileId = "0x..."; // The Root Hash from upload
+
+try {
+  // Downloads chunks, verifies on-chain hash, and reassembles
+  const fileBuffer = await Mammoth.retrieve(fileId);
+
+  // Example: Display image
+  const blob = new Blob([fileBuffer]);
+  const url = URL.createObjectURL(blob);
+  document.getElementById("img-preview").src = url;
+
+} catch (error) {
+  console.error("Verification failed:", error);
+}`} />
+            </section>
+          </div>
+
+          <div className="card bg-accent/10 border-accent">
+            <h2 className="text-2xl font-bold mb-4">How it Works (Under the Hood)</h2>
+            <ul className="list-decimal pl-5 space-y-2 text-gray-700 dark:text-gray-300">
+              <li><strong>Chunking:</strong> File is split into chunks and hashed client-side.</li>
+              <li><strong>Payment:</strong> User signs a BLOCKDAG transaction with the Root Hash.</li>
+              <li><strong>Verification:</strong> Storage Nodes verify the transaction on-chain before accepting chunks.</li>
+              <li><strong>Retrieval:</strong> SDK downloads chunks from nodes and verifies them against the on-chain Root Hash.</li>
+            </ul>
           </div>
           
-          <div className="bg-accent/10 rounded-lg p-6 border border-accent/20">
-            <h2 className="text-2xl font-bold mb-4 text-accent">Need Help?</h2>
-            <p className="mb-4">
-              Our support team is ready to assist you with any questions or issues you may have.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <a href="#" className="btn btn-primary">Contact Support</a>
-              <a href="#" className="btn btn-secondary">Join Discord</a>
-            </div>
-          </div>
         </div>
       </div>
       

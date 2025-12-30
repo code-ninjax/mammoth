@@ -16,8 +16,8 @@ const benefits = [
   },
   {
     icon: <Code className="h-6 w-6 text-accent" />,
-    title: "API-first architecture",
-    description: "Built for developers with comprehensive API access to all features."
+    title: "SDK-first architecture",
+    description: "Built for developers with comprehensive SDK access to all features."
   },
   {
     icon: <DollarSign className="h-6 w-6 text-accent" />,

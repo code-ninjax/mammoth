@@ -1,94 +1,71 @@
-# 🐘 Mammoth — Decentralized Storage for the BlockDAG Ecosystem
+# Mammoth (Hackathon MVP)
 
-Mammoth is a decentralized storage layer purpose-built for the **BlockDAG (BDAG) ecosystem**.  
-It enables users and developers to **store, manage, and share on-chain data** with speed, security, and transparency.
+Mammoth is a pay-to-store developer stack for the BlockDAG ecosystem: a smart contract + SDK + storage node.
+Think of it like “Sui ↔ Walrus”, but for BDAG: the chain provides payment + on-chain proof, while the storage network serves the bytes.
 
----
+## What Happens When You Upload
 
-## 🚀 Overview
+1. The SDK chunks the file (`256KB` chunks).
+2. Each chunk is SHA-256 hashed.
+3. A deterministic `rootHash` is built as `sha256(concat(chunkHashes))` (Merkle-like simplification).
+4. Metadata (name, size, mimeType, chunkCount, rootHash) is JSON-stringified and hashed to `metadataHash`.
+5. The SDK sends an on-chain `storeFile(rootHash, metadataHash)` payable transaction on BDAG and returns the `txHash`.
+6. The storage node accepts chunk uploads only after it verifies the on-chain record exists for `rootHash`.
+7. The SDK returns:
+   - `fileId` = `rootHash`
+   - `txHash`
+   - `retrievalEndpoint` (HTTP download URL)
 
-Centralized storage solutions are risky, expensive, and prone to censorship.  
-BlockDAG currently lacks a native storage infrastructure, leaving developers struggling to store metadata, images, and dApp files.  
+## Where The File Is Stored (Dev Server)
 
-**Mammoth solves this problem** by providing a **peer-to-peer, censorship-resistant, and permanent storage layer** optimized for BDAG applications.
+On the local node, files are stored as:
+- `mammoth-node/storage/<rootHash>/metadata.json`
+- `mammoth-node/storage/<rootHash>/<chunkIndex>`
 
----
+## How Judges Can Test (End-to-End)
 
-## ✨ Key Features (MVP)
+1. Install dependencies: `npm install`
+2. Create `.env.local` at repo root:
+   - `BDAG_RPC_URL=https://rpc.awakening.bdagscan.com`
+   - `NEXT_PUBLIC_MAMMOTH_STORAGE_ADDRESS=<deployed_contract_address>`
+3. Deploy contract (optional if you already have one): `npm run contracts:deploy:bdag`
+4. Start storage node: `npm run node:start`
+5. Start frontend: `npm run dev`
+6. Open `http://localhost:3000/demo`, connect wallet, upload a file.
 
-- **Upload & Pin Files** — Store files permanently on the decentralized network  
-- **Decentralized Storage Nodes** — Distributed architecture ensures resilience and scalability  
-- **Wallet-Based Authentication (BDAG Wallet)** — Secure access tied to BDAG identity  
-- **Developer API** — Simple integration for dApps and services  
-- **File Hashing + Metadata** — Immutable references for stored data  
-- **Public/Private File Access** — Flexible permissions for users and developers  
-- **Usage Dashboard** — Track storage usage and manage files easily  
+After upload, click “Retrieve & Verify Integrity” to download from the storage node.
 
----
+## Transaction Link (BDAG Scan)
 
-## 🔧 How It Works
+The UI prints a `Transaction Hash` after upload. Paste it here:
+- `https://awakening.bdagscan.com/tx/<txHash>`
 
-1. Connect your **BDAG Wallet**  
-2. Upload files to Mammoth  
-3. Files are stored across decentralized nodes  
-4. Access or integrate files into BDAG dApps anytime  
+## SDK Usage (For Other Teams)
 
----
+Install:
+- `npm i mammoth-sdk`
 
-## 📌 Use Cases
+Use:
+```ts
+import { Mammoth } from "mammoth-sdk";
 
-- Store **NFT metadata** for BDAG NFT projects  
-- Backend file storage for **BDAG dApps**  
-- On-chain storage for **images, videos, and documents**  
-- Permanent archiving for creators and institutions  
-- Infrastructure for **future BlockDAG applications**  
+Mammoth.init({
+  rpcUrl: "https://rpc.awakening.bdagscan.com",
+  contractAddress: "<MammothStorageAddress>",
+  nodes: ["http://localhost:8080"],
+});
 
----
+const result = await Mammoth.store({
+  file,            // Browser File or Buffer
+  payment: "0.001" // BDAG-native value (18 decimals)
+});
 
-## 🗺️ Roadmap
+console.log(result.fileId);            // rootHash
+console.log(result.txHash);            // on-chain proof
+console.log(result.retrievalEndpoint); // HTTP download link
+```
 
-### Phase 1 — MVP
-- File upload  
-- Storage nodes  
-- BDAG wallet authentication  
-
-### Phase 2 — Developer API
-- SDK for developers  
-- Advanced encryption  
-
-### Phase 3 — Expansion
-- Node rewards system  
-- File versioning  
-- Larger integrations with BDAG ecosystem  
-
----
-
-## 🌍 Mission
-
-> Mammoth is building the decentralized infrastructure BlockDAG needs to power the next generation of apps.  
-> **Fast. Permanent. Secure.**
-
----
-
-## 📥 Join the Waitlist
-
-Be among the first to experience Mammoth.  
-- Sign up with your email  
-- (Optional) Connect your BDAG wallet  
-
-👉 **[Join the Waitlist](#)**
-
----
-
-## 📫 Contact
-
-- Website: Coming soon  
-- Whitepaper: Coming soon  
-- Email: contact@mammoth.io  
-- Socials: Twitter | Discord | Telegram  
-
----
-
-## ⚖️ License
-
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+Verify + retrieve via SDK:
+```ts
+const buf = await Mammoth.retrieve(result.fileId);
+```

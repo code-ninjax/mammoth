@@ -11,18 +11,18 @@ const devFeatures = [
   },
   {
     icon: <FileCode className="h-6 w-6 text-accent" />,
-    title: "REST APIs",
-    items: ["File Upload", "IPFS Pinning", "Storage Management", "Access Control"]
+    title: "Mammoth SDK Methods",
+    items: ["File Store (Pay-to-Store)", "File Retrieve", "Metadata Verification", "Node Status"]
   },
   {
     icon: <Terminal className="h-6 w-6 text-accent" />,
-    title: "IPFS Pinning Endpoints",
-    items: ["Pin by CID", "Pin by File", "Unpin", "Pin Status"]
+    title: "Decentralized Retrieval",
+    items: ["Verify Root Hash", "Download Chunks", "Reassemble File", "Check Integrity"]
   },
   {
     icon: <FileCode className="h-6 w-6 text-accent" />,
-    title: "S3 Bucket Endpoints",
-    items: ["PUT/GET Objects", "Create/Delete Buckets", "List Objects", "Permissions"]
+    title: "Node Management",
+    items: ["Run Node", "Sync Blocks", "Verify Payments", "Store Chunks"]
   }
 ];
 
@@ -101,19 +101,22 @@ export function DeveloperSection() {
               </div>
               <pre className="text-sm text-gray-300 font-mono overflow-x-auto">
                 <code>{`// Upload a file to Mammoth storage
-const mammoth = new MammothClient({ apiKey });
+import { Mammoth } from "mammoth-sdk";
 
-// Upload file to IPFS
-const result = await mammoth.upload({
-  file: myFile,
-  pinToIPFS: true,
-  encryption: 'client-side',
-  access: 'public'
+// Initialize
+Mammoth.init({
+  rpcUrl: "https://rpc.awakening.bdagscan.com",
+  nodes: ["http://node1.mammoth.storage"]
 });
 
-console.log(\`File uploaded! CID: \${result.cid}\`);
-console.log(\`IPFS URL: ipfs://\${result.cid}\`);
-console.log(\`Gateway URL: \${result.url}\`);`}</code>
+// Pay-to-Store Flow
+const result = await Mammoth.store({
+  file: myFile,
+  payment: "0.01" // BLOCKDAG
+});
+
+console.log(\`File ID: \${result.fileId}\`);
+console.log(\`TX Hash: \${result.txHash}\`);`}</code>
               </pre>
             </div>
           </motion.div>

@@ -20,7 +20,7 @@ export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { address, isConnected } = useAccount();
   const { connect, connectors, isPending, error } = useConnect();
-  const injectedConnector = connectors.find((c) => c.id === "injected") ?? connectors[0];
+  const injectedConnector = connectors.find((c) => c.id === "metaMask") ?? connectors[0];
   const { disconnect } = useDisconnect();
 
   useEffect(() => {
@@ -56,18 +56,12 @@ export function Navbar() {
           </div>
           
           <div className="hidden md:flex items-center space-x-4">
-            {isConnected && (
-              <Link
-                href="/login"
-                className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-accent dark:hover:text-accent"
-              >
-                Dashboard
-              </Link>
-            )}
             {isConnected ? (
               <button
-                onClick={() => disconnect()}
-                className="px-3 py-2 rounded-md border border-gray-300 hover:bg-gray-100 text-sm"
+                onClick={() => {
+                  disconnect();
+                }}
+                className="px-3 py-2 rounded-md border border-gray-300 hover:bg-gray-100 text-sm text-gray-700 dark:text-gray-200 dark:hover:text-black"
               >
                 Disconnect {address?.slice(0, 6)}...{address?.slice(-4)}
               </button>
@@ -128,27 +122,18 @@ export function Navbar() {
                 {link.name}
               </Link>
             ))}
-            {isConnected && (
-              <Link
-                href="/login"
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-accent dark:hover:text-accent"
-                onClick={() => setIsOpen(false)}
-              >
-                Dashboard
-              </Link>
-            )}
-            <div className="px-3 py-2">
-              {isConnected ? (
+              <div className="px-3 py-2">
+                {isConnected ? (
                 <button
                   onClick={() => {
-                    disconnect();
-                    setIsOpen(false);
+                      disconnect();
+                      setIsOpen(false);
                   }}
-                  className="w-full px-3 py-2 rounded-md border border-gray-300 hover:bg-gray-100"
+                  className="w-full px-3 py-2 rounded-md border border-gray-300 hover:bg-gray-100 text-gray-700 dark:text-gray-200 dark:hover:text-black"
                 >
                   Disconnect {address?.slice(0, 6)}...{address?.slice(-4)}
-                </button>
-              ) : (
+              </button>
+            ) : (
                 <button
                   onClick={() => {
                     try {

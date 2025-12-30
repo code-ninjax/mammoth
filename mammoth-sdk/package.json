@@ -1,7 +1,11 @@
 {
   "name": "mammoth-sdk",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
+  "description": "Mammoth Storage SDK for Pay-to-Store on BLOCKDAG",
+  "keywords": ["mammoth", "storage", "blockdag", "decentralized"],
+  "author": "Mammoth Team",
+  "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
