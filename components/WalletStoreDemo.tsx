@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { Mammoth } from "mammoth-sdk";
 
@@ -11,12 +11,26 @@ export default function WalletStoreDemo() {
   const [nodeUrl, setNodeUrl] = useState<string>(
     process.env.NEXT_PUBLIC_NODE_URL || (typeof window !== "undefined" ? window.location.origin : "http://localhost:8080")
   );
-  const [contractAddress, setContractAddress] = useState<string>(
-    process.env.NEXT_PUBLIC_MAMMOTH_STORAGE_ADDRESS || ""
-  );
+  const [contractAddress, setContractAddress] = useState<string>("");
   const [paymentEth, setPaymentEth] = useState<string>("0.001");
   const [logs, setLogs] = useState<string[]>([]);
   const [retrievalUrl, setRetrievalUrl] = useState<string>("");
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/config")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled || !data) return;
+        if (typeof data.contractAddress === "string" && data.contractAddress && !contractAddress) {
+          setContractAddress(data.contractAddress);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [contractAddress]);
 
   function log(msg: string) {
     console.log(msg);

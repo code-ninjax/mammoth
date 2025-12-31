@@ -72,6 +72,13 @@ if (RPC_URL && CONTRACT_ADDRESS) {
     contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, provider);
 }
 
+app.get("/config", (req, res) => {
+  res.json({
+    contractAddress: CONTRACT_ADDRESS || "",
+    rpcUrl: RPC_URL || "",
+  });
+});
+
 app.post("/upload", async (req, res) => {
   const { chunk, chunkIndex, chunkHash, rootHash, metadata, txHash, contractAddress } = req.body || {};
   
