@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Code, Image, FileArchive, Globe, Database } from "lucide-react";
+import { Code, Image as ImageIcon, FileArchive, Globe, Database } from "lucide-react";
 
 const useCases = [
   {
@@ -10,7 +10,7 @@ const useCases = [
     description: "Store metadata, configurations, and assets for your decentralized applications and smart contracts."
   },
   {
-    icon: <Image className="h-10 w-10 text-accent" />,
+    icon: <ImageIcon className="h-10 w-10 text-accent" />,
     title: "NFT Collections",
     description: "Securely store images, metadata, and JSON files for your NFT collections with permanent pinning."
   },

@@ -18,7 +18,7 @@ describe("MammothStorage", function () {
     const metadataHash = ethers.keccak256(ethers.toUtf8Bytes("demo-metadata"));
 
     const paid = ethers.parseEther("9"); // 9 ETH for clean division
-    await expect(contract.connect(owner).storeFile(rootHash, metadataHash, { value: paid }))
+    await expect((contract.connect(owner) as any).storeFile(rootHash, metadataHash, { value: paid }))
       .to.emit(contract, "FileStored")
       .withArgs(rootHash, metadataHash, await owner.getAddress(), paid);
 

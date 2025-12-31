@@ -50,3 +50,55 @@ const result = await Mammoth.store({
 console.log("File ID:", result.
 fileId);
 ```
+
+
+
+#14 37.31 13:11  Warning: Image elements must have an alt prop, either with meaningful text, or an empty string for decorative images.  jsx-a11y/alt-text
+
+#14 37.31
+
+#14 37.31 info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
+
+#14 41.71 Failed to compile.
+
+#14 41.71
+
+#14 41.71 ./smart-contracts/test/MammothStorage.ts:21:42
+
+#14 41.71 Type error: Property 'storeFile' does not exist on type 'BaseContract'.
+
+#14 41.71
+
+#14 41.71   19 |
+
+#14 41.71   20 |     const paid = ethers.parseEther("9"); // 9 ETH for clean division
+
+#14 41.71 > 21 |     await expect(contract.connect(owner).storeFile(rootHash, metadataHash, { value: paid }))
+
+#14 41.71      |                                          ^
+
+#14 41.71   22 |       .to.emit(contract, "FileStored")
+
+#14 41.71   23 |       .withArgs(rootHash, metadataHash, await owner.getAddress(), paid);
+
+#14 41.71   24 | another errror you are buding and not seeing this errors but its whowing on render y please fix this whats the errror Dockerfile:15
+
+--------------------
+
+13 |     COPY . .
+
+14 |
+
+15 | >>> RUN npm run sdk:build && npm run build
+
+16 |
+
+17 |     ENV NODE_ENV=production
+
+--------------------
+
+error: failed to solve: process "/bin/sh -c npm run sdk:build && npm run build" did not complete successfully: exit code: 1
+
+error: exit status 11 Type error: Property 'storeFile' does not exist on type 'BaseContract'. look att e errors and properly debug
+
+Builder
