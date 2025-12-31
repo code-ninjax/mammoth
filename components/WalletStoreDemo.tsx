@@ -8,7 +8,9 @@ export default function WalletStoreDemo() {
   const { isConnected } = useAccount();
 
   const [file, setFile] = useState<File | null>(null);
-  const [nodeUrl, setNodeUrl] = useState<string>("http://localhost:8080");
+  const [nodeUrl, setNodeUrl] = useState<string>(
+    process.env.NEXT_PUBLIC_NODE_URL || (typeof window !== "undefined" ? window.location.origin : "http://localhost:8080")
+  );
   const [contractAddress, setContractAddress] = useState<string>(
     process.env.NEXT_PUBLIC_MAMMOTH_STORAGE_ADDRESS || ""
   );

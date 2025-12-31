@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: mammoth
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    autoDeploy: true
+    disk:
+      name: mammoth-storage
+      mountPath: /var/mammoth/storage
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: STORAGE_DIR
+        value: /var/mammoth/storage
+      - key: BDAG_RPC_URL
+        value: https://rpc.awakening.bdagscan.com
+      - key: NEXT_PUBLIC_MAMMOTH_STORAGE_ADDRESS
+        value: 0x02a37bD1F6A83421086Fa3B8C907c521E3C47aA2

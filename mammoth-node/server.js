@@ -5,6 +5,7 @@ import path from "path";
 import { ethers } from "ethers";
 import dotenv from "dotenv";
 import { fileURLToPath } from "url";
+import next from "next";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,12 +14,13 @@ dotenv.config({ path: path.resolve(__dirname, "../.env.local") });
 dotenv.config();
 
 const app = express();
-// Allow any localhost origin and handle CORS preflight properly
+const corsOrigin = process.env.CORS_ORIGIN;
 app.use(
   cors({
     origin: (origin, cb) => {
-      // Allow localhost dev ports (3000/3001/3002/3003, etc.)
-      if (!origin || /http:\/\/localhost:\d{4}/.test(origin)) return cb(null, true);
+      if (!origin) return cb(null, true);
+      if (corsOrigin) return cb(null, origin === corsOrigin);
+      if (/http:\/\/localhost:\d{4}/.test(origin)) return cb(null, true);
       return cb(null, false);
     },
     methods: ["GET", "POST", "OPTIONS"],
@@ -28,7 +30,9 @@ app.use(
 app.options("*", cors());
 app.use(express.json({ limit: "50mb" }));
 
-const STORAGE_DIR = path.resolve(__dirname, "storage");
+const STORAGE_DIR = process.env.STORAGE_DIR
+  ? path.resolve(process.env.STORAGE_DIR)
+  : path.resolve(__dirname, "storage");
 const LEGACY_STORAGE_DIR = path.resolve(__dirname, "mammoth-node", "storage");
 if (!fs.existsSync(STORAGE_DIR)) {
   fs.mkdirSync(STORAGE_DIR, { recursive: true });
@@ -245,12 +249,32 @@ app.get("/getBlob/:hash", (req, res) => {
 
 
 const PORT = Number(process.env.PORT || 8080);
-const server = app.listen(PORT, () => console.log(`Mammoth node running on ${PORT}`));
-server.on("error", (err) => {
-  if (err?.code === "EADDRINUSE") {
-    console.error(`[Node] Port ${PORT} is already in use. Stop the other process, or run with a different port (PowerShell: $env:PORT=8081; npm run node:start).`);
-    process.exit(1);
+
+async function start() {
+  const dev = process.env.NODE_ENV !== "production";
+  if (!dev) {
+    const nextApp = next({ dev, dir: path.resolve(__dirname, "..") });
+    const handle = nextApp.getRequestHandler();
+    await nextApp.prepare();
+    app.all("*", (req, res) => handle(req, res));
   }
-  console.error("[Node] Server error:", err);
+
+  const server = app.listen(PORT, () =>
+    console.log(dev ? `Mammoth node running on ${PORT}` : `Mammoth app running on ${PORT}`)
+  );
+  server.on("error", (err) => {
+    if (err?.code === "EADDRINUSE") {
+      console.error(
+        `[Node] Port ${PORT} is already in use. Stop the other process, or run with a different port (PowerShell: $env:PORT=8081; npm run node:start).`
+      );
+      process.exit(1);
+    }
+    console.error("[Node] Server error:", err);
+    process.exit(1);
+  });
+}
+
+start().catch((err) => {
+  console.error("[Node] Startup failed:", err);
   process.exit(1);
 });
